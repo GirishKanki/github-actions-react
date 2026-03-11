@@ -32,7 +32,7 @@ jobs:
           echo "Project files:"
           ls
           echo "Build files:"
-          ls -R build
+          ls -R dist
 
       - name: Setup SSH
         run: |
@@ -43,7 +43,7 @@ jobs:
 
       - name: Copy Build Files to EC2
         run: |
-          scp -r build/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/react-build
+          scp -r dist/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/react-build
 
       - name: Deploy to Web Server
         run: |
