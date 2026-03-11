@@ -6,9 +6,10 @@ branches:
 - main
 
 jobs:
-build:
+build-and-deploy:
 runs-on: ubuntu-latest
 
+```
 steps:
   - name: Checkout Repository
     uses: actions/checkout@v4
@@ -21,13 +22,10 @@ steps:
   - name: Install Dependencies
     run: npm ci
 
-  - name: Fix Vite Permission
-    run: chmod +x node_modules/.bin/vite
-
   - name: Build React App
     run: npm run build
 
-  - name: Show Dist Folder
+  - name: Show Build Folder
     run: |
       echo "Project files:"
       ls
@@ -52,3 +50,4 @@ steps:
         sudo rm -rf /var/www/html/GitHub-actions/react/frontend/*
         sudo mv /tmp/react-build/* /var/www/html/GitHub-actions/react/frontend/
       "
+```
