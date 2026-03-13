@@ -1,0 +1,54 @@
+name: Build and Deploy React App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Fix Vite Permission
+        run: chmod +x node_modules/.bin/vite
+
+      - name: Build React App
+        run: npm run build
+        
+      - name: Show Build Folder
+        run: |
+          echo "Project files:"
+          ls
+          echo "Build files:"
+          ls -R dist
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy Build Files to EC2
+        run: |
+          scp -r dist/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/react-build
+
+      - name: Deploy to Web Server
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            sudo rm -rf /var/www/html/GitHub-actions/react/frontend/*
+            sudo mkdir -p /var/www/html/GitHub-actions/react/frontend
+            sudo mv /tmp/react-build/* /var/www/html/GitHub-actions/react/frontend/
+          "
