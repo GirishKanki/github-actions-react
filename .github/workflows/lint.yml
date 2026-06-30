@@ -1,6 +1,11 @@
 name: Lint and Build Check
 
 on:
+  push:
+    branches:
+      - main
+      - develop
+
   pull_request:
     branches:
       - main
